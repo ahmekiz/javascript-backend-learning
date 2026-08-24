@@ -28,5 +28,19 @@ function findPlan(customer, subscriptionId, planId) {
     if(!customer.isActive) {
         throw new Error('customer must be active')
     }
-    
+    if((typeof subscriptionId !== 'number' && typeof planId !== 'number')) {
+        throw new Error('subscriptionId and planId type must be number')
+    }
+    const targetSub = customer.subscriptions.find(sub => sub.id === subscriptionId)
+    if(!targetSub) {
+        throw new Error('Target Subscription not found')
+    }
+    if((targetSub.plans ?? []).length === 0) {
+        throw new Error('Subscription plans must be available')
+    }
+    const targetPlan = targetSub.plans.find(plan => plan.id === planId)
+    if(!targetPlan) {
+        throw new Error('Target Plan not found')
+    }
+    return targetPlan
 }
