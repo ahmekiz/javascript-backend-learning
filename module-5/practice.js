@@ -20,18 +20,12 @@ function cancelSubscription(customer, subscriptionId) {
     if((customer.subscriptions ?? []).length === 0) {
         throw new Error('Subscriptions must be available')
     }
-    let targetSub = null
-    for(const sub of customer.subscriptions) {
-        if(sub.id !== subscriptionId) {
-            continue
-        }
-        if(sub.status !== 'cancelled') {
-            sub.status = 'cancelled'
-        }
-        targetSub = sub
-    }
+    let targetSub = customer.subscriptions.find(sub => sub.id === subscriptionId)
     if(!targetSub) {
         throw new Error('Target subscription not found')
+    }
+    if(targetSub.status !== 'cancelled') {
+        targetSub.status = 'cancelled'
     }
     return targetSub
 }
