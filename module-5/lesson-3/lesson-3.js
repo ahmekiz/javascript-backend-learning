@@ -1,0 +1,2 @@
+import { customer } from './data.js'
+
