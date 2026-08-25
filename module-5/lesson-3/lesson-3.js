@@ -213,3 +213,48 @@ function deactivatePlanRefactored(customer, subscriptionId, planId) {
     targetPlan.isActive = false
     return targetPlan
 }
+
+function pauseExpensivePlans(customer, subscriptionId, priceLimit) {
+    if(!customer) {
+        throw new Error('Customer not available')
+    }
+    if(typeof subscriptionId !== 'number' || typeof priceLimit !== 'number') {
+        throw new Error('subscriptionId and priceLimit type must be number')
+    }
+    if(priceLimit <= 0) {
+        throw new Error('priceLimit must be bigger than 0')
+    }
+    if(!customer.isActive) {
+        throw new Error('Customer must be active')
+    }
+    if((customer.subscriptions ?? []).length === 0) {
+        throw new Error('subsriptions not available')
+    }
+    const targetSub = findSubscription(customer.subscriptions, subscriptionId)
+    if(!targetSub) {
+        throw new Error('Target subscription not found')
+    }
+    if(targetSub.status !== 'active') {
+        throw new Error('Target Subscription status must be active')
+    }
+    if(!(targetSub.plans) || targetSub.plans.length === 0) {
+        throw new Error('Plans not available')
+    }
+    const targetPlans =  targetSub.plans.filter(plan => plan.isActive && plan.monthlyPrice > priceLimit)
+    if(targetPlans.length === 0) {
+        throw new Error('Target Plans is empty')
+    }
+    for(const plan of targetPlans) {
+        plan.isActive = false
+    }
+    const remainingActivePlans = targetSub.plans.filter(plan => plan.isActive)
+    const calculated = remainingActivePlans.reduce((acc,plan) => acc + plan.monthlyPrice, 0)
+    targetSub.totalMonthlyPrice = calculated
+
+    return {
+        subscriptionId: targetSub.id,
+        pausedPlanCount: targetPlans.length,
+        remainingActivePlanCount: remainingActivePlans.length,
+        totalMonthlyPrice: targetSub.totalMonthlyPrice
+    }
+}
