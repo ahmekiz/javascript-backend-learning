@@ -117,3 +117,58 @@ function applyPlanDiscount(customer, subscriptionId, planId, discountPercent) {
         discountPercent: discountPercent
     }
 }
+
+function recalculateSubscriptionPrice(customer, subscriptionId) {
+    if(!customer) {
+        throw new Error('Customer not found')
+    }
+
+    if(typeof subscriptionId !== 'number') {
+        throw new Error('subscriptionId type must be number')
+    }
+
+    if(!customer.isActive) {
+        throw new Error('Customer must be active')
+    }
+
+    if((customer.subscriptions ?? []).length === 0) {
+        throw new Error('Subscriptions not available')
+    }
+
+    const targetSub = customer.subscriptions.find(
+        sub => sub.id === subscriptionId
+    )
+
+    if(!targetSub) {
+        throw new Error('Target Subscription not found')
+    }
+
+    if(targetSub.status === 'cancelled') {
+        throw new Error('Target Subscription status cannot be cancelled')
+    }
+
+    if(!targetSub.plans || targetSub.plans.length === 0) {
+        throw new Error('Plans not available')
+    }
+
+    const activePlans = targetSub.plans.filter(
+        plan => plan.isActive
+    )
+
+    if(activePlans.length === 0) {
+        throw new Error('Active Plans not found')
+    }
+
+    const totalMonthlyPrice = activePlans.reduce(
+        (acc, plan) => acc + plan.monthlyPrice,
+        0
+    )
+
+    targetSub.totalMonthlyPrice = totalMonthlyPrice
+
+    return {
+        subscriptionId: targetSub.id,
+        activePlanCount: activePlans.length,
+        totalMonthlyPrice: targetSub.totalMonthlyPrice
+    }
+}
