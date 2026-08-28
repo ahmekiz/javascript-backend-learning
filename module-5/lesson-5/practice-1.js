@@ -1,4 +1,4 @@
-import { customer } from "./data.js"
+import { customer } from "./data-1.js"
 
 function findSubscription(subscriptions, subscriptionId) {
     return subscriptions.find(sub => sub.id === subscriptionId)
