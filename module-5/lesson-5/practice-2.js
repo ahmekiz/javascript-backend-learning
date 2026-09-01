@@ -108,8 +108,6 @@ function mergeSubscriptions(
 
     const transferredPlanCount = sourcePlans.length
 
-    // COMMIT POINT
-
     targetSub.plans = [
         ...targetPlans,
         ...sourcePlans
