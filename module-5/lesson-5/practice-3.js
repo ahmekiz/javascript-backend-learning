@@ -48,4 +48,22 @@ function transferPlan(sourceSubscription, targetSubscription, planId) {
     if(projectedTargetLength > 3) {
         throw new Error('Target subscription can have a maximum of 3 plans')
     }
+
+    const projectedSourcePlans = sourceSubscription.plans.filter(
+        plan => plan.id !== planId
+    )
+
+    const projectedTargetPlans = [
+        ...targetPlans,
+        planToTransfer
+    ]
+    sourceSubscription.plans = projectedSourcePlans
+
+    targetSubscription.plans = projectedTargetPlans
+
+    return {
+        transferredPlanId: planToTransfer.id,
+        sourceSubscriptionId: sourceSubscription.id,
+        targetSubscriptionId: targetSubscription.id
+    }
 }
