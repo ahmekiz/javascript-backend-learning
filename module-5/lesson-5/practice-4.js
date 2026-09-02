@@ -15,3 +15,8 @@ const customerSummaries = customers
         customerName: customer.name,
         hasExpensiveActivePlan: customer.subscriptions.some(sub => sub.status === 'active' && sub.plans.some(plan => plan.active && plan.price > 3000))
     }))
+
+console.log(
+    namesOfPlants,
+    customerSummaries
+);
