@@ -23,3 +23,22 @@ function isValidSubscription(sub) {
     Array.isArray(sub.plans)
   );
 }
+
+const subscriptions = [
+  {
+    status: "active",
+    plans: [
+      { id: 12, name: "Pro", price: 1200 },
+      null,
+      { id: 15, name: "", price: 800 }
+    ]
+  },
+  {
+    status: "paused",
+    plans: [
+      { id: 20, name: "Business", price: 2500 }
+    ]
+  }
+];
+
+const planId = 12;
