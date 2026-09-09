@@ -61,3 +61,5 @@ function buildCustomerSummaries(customers) {
             }
         })
 }
+
+console.log(typeof []);
