@@ -13,3 +13,13 @@ function isValidPlan(plan) {
     }
     return true
 }
+
+function isValidSubscription(sub) {
+  return (
+    sub !== null &&
+    typeof sub === "object" &&
+    !Array.isArray(sub) &&
+    typeof sub.status === "string" &&
+    Array.isArray(sub.plans)
+  );
+}
