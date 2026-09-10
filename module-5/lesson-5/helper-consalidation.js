@@ -42,3 +42,10 @@ const subscriptions = [
 ];
 
 const planId = 12;
+
+const targetPlan = subscriptions
+    .filter(isValidSubscription)
+    .filter(sub => sub.status === 'active')
+    .flatMap(sub => sub.plans)
+    .filter(isValidPlan)
+    .find(plan => plan.id === planId)
