@@ -55,10 +55,10 @@ function isValidPlan(plan) {
     if(!Number.isInteger(plan.id) || plan.id <= 0) {
         return false
     }
-    if(typeof plan.status !== 'string' || plan.status.trim().length === 0) {
+    if(typeof plan.name !== 'string' || plan.name.trim().length === 0) {
         return false
     }
-    if(!Array.isArray(plan.plans)) {
+    if(!Number.isFinite(plan.price) || plan.price < 0) {
         return false
     }
     return true
@@ -71,14 +71,14 @@ function previewPlanDiscount(customer, request) {
     if(!Array.isArray(customer.subscriptions)) {
         return null
     }
-    if(request === null || typeof null !== 'object' || Array.isArray(request)) {
+    if(request === null || typeof request !== 'object' || Array.isArray(request)) {
         return null
     }
     if(!Number.isInteger(request.planId) || request.planId <= 0) {
         return null
     }
     const requestDiscount = request.discount ?? 0;
-    if(!Number.isFinite(requestDiscount) || request < 0 || request > 30) {
+    if(!Number.isFinite(requestDiscount) || requestDiscount < 0 || requestDiscount > 30) {
         return null
     }
     const targetPlan = customer.subscriptions
@@ -86,15 +86,19 @@ function previewPlanDiscount(customer, request) {
         .filter(sub => sub.status === 'active')
         .flatMap(sub => sub.plans)
         .filter(isValidPlan)
-        .find(plan => plan.id === request.id)
+        .find(plan => plan.id === request.planId)
     
+    if(targetPlan === undefined) {
+        return null
+    }
+
     const discountedPrice = targetPlan.price * (1- requestDiscount / 100)
     if(discountedPrice < 0 ) {
         return null
     }
     return {
         planId: targetPlan.id,
-        planName: targetPlan.name,
+        planName: targetPlan.name.trim(),
         originalPrice: targetPlan.price,
         discount: requestDiscount,
         discountedPrice: discountedPrice
