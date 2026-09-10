@@ -74,5 +74,29 @@ function previewPlanDiscount(customer, request) {
     if(request === null || typeof null !== 'object' || Array.isArray(request)) {
         return null
     }
-    if(request.planId)
+    if(!Number.isInteger(request.planId) || request.planId <= 0) {
+        return null
+    }
+    const requestDiscount = request.discount ?? 0;
+    if(!Number.isFinite(requestDiscount) || request < 0 || request > 30) {
+        return null
+    }
+    const targetPlan = customer.subscriptions
+        .filter(isValidSubscription)
+        .filter(sub => sub.status === 'active')
+        .flatMap(sub => sub.plans)
+        .filter(isValidPlan)
+        .find(plan => plan.id === request.id)
+    
+    const discountedPrice = targetPlan.price * (1- requestDiscount / 100)
+    if(discountedPrice < 0 ) {
+        return null
+    }
+    return {
+        planId: targetPlan.id,
+        planName: targetPlan.name,
+        originalPrice: targetPlan.price,
+        discount: requestDiscount,
+        discountedPrice: discountedPrice
+    }
 }
