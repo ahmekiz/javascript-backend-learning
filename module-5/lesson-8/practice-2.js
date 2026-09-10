@@ -91,7 +91,7 @@ function previewPlanUpgrade(customer, request) {
     if(!Number.isFinite(requestCredit) || requestCredit < 0) {
         return null
     }
-    if(typeof request.ownerName !== 'string') {
+    if(typeof request.ownerName !== 'string' || request.ownerName.trim().length === 0) {
         return null
     }
     const requestOwnerName = request.ownerName.trim()
