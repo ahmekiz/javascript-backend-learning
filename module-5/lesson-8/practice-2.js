@@ -70,3 +70,65 @@ function isValidPlan(plan) {
     }
     return true
 }
+
+function previewPlanUpgrade(customer, request) {
+    if(customer === null || typeof customer !== 'object' || Array.isArray(customer)) {
+        return null
+    }
+    if(!Array.isArray(customer.subscriptions)) {
+        return null
+    }
+    if(request === null || typeof request !== 'object' || Array.isArray(request)) {
+        return null
+    }
+    if(!Number.isInteger(request.subscriptionId) || request.subscriptionId <= 0) {
+        return null
+    }
+    if(!Number.isInteger(request.newPlanId) || request.newPlanId <= 0) {
+        return null
+    }
+    const requestCredit = request.credit ?? 0;
+    if(!Number.isFinite(requestCredit) || requestCredit < 0) {
+        return null
+    }
+    if(typeof request.ownerName !== 'string' || request.ownerName.trim().length === 0) {
+        return null
+    }
+    const requestOwnerName = request.ownerName.trim()
+    const targetSub = customer.subscriptions
+        .filter(isValidSubscription)
+        .filter(sub => sub.status === 'active')
+        .find(sub => sub.id === request.subscriptionId)
+    if(targetSub === undefined) {
+        return null
+    }
+    const newPlan = customer.subscriptions
+        .filter(isValidSubscription)
+        .filter(sub => sub.status === 'active')
+        .flatMap(sub => sub.plans)
+        .filter(isValidPlan)
+        .find(plan => plan.id === request.newPlanId)
+    if(newPlan === undefined) {
+        return null
+    }
+    const targetSubPlans = targetSub
+        .flatMap(sub => sub.plans)
+        .filter(isValidPlan)
+    if(targetSubPlans.some(plan => plan.id === newPlan.id)) {
+        return null
+    }
+    const currentlyMonthlyPrice = targetSubPlans.reduce((acc, plan) => acc + plan.price ,0)
+    const newMonthlyPrice = currentlyMonthlyPrice + newPlan.price - requestCredit;
+    if(newMonthlyPrice < 0) {
+        return null
+    }
+    return {
+        subscriptionId: targetSub.id,
+        addedPlanId: newPlan.id,
+        addedPlanName: newPlan.name,
+        ownerName: requestOwnerName,
+        credit: requestCredit,
+        currentMonthlyPrice: currentlyMonthlyPrice,
+        newMonthlyPrice: newMonthlyPrice
+    }
+}
