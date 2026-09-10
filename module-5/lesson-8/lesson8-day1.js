@@ -65,5 +65,14 @@ function isValidPlan(plan) {
 }
 
 function previewPlanDiscount(customer, request) {
-    // ...
+    if(customer === null || typeof customer !== 'object' || Array.isArray(customer)) {
+        return null
+    }
+    if(!Array.isArray(customer.subscriptions)) {
+        return null
+    }
+    if(request === null || typeof null !== 'object' || Array.isArray(request)) {
+        return null
+    }
+    if(request.planId)
 }
