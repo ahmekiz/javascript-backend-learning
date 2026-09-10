@@ -49,7 +49,19 @@ function isValidSubscription(sub) {
 }
 
 function isValidPlan(plan) {
-    // istersen az önceki helper'ını aynen kullan
+    if(plan === null || typeof plan !== "object" || Array.isArray(plan)) {
+        return false
+    }
+    if(!Number.isInteger(plan.id) || plan.id <= 0) {
+        return false
+    }
+    if(typeof plan.status !== 'string' || plan.status.trim().length === 0) {
+        return false
+    }
+    if(!Array.isArray(plan.plans)) {
+        return false
+    }
+    return true
 }
 
 function previewPlanDiscount(customer, request) {
