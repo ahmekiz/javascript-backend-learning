@@ -91,7 +91,7 @@ function previewPlanUpgrade(customer, request) {
     if(!Number.isFinite(requestCredit) || requestCredit < 0) {
         return null
     }
-    if(typeof request.ownerName !== 'string' || request.ownerName.trim().length === 0) {
+    if(typeof request.ownerName !== 'string') {
         return null
     }
     const requestOwnerName = request.ownerName.trim()
@@ -111,8 +111,7 @@ function previewPlanUpgrade(customer, request) {
     if(newPlan === undefined) {
         return null
     }
-    const targetSubPlans = targetSub
-        .flatMap(sub => sub.plans)
+    const targetSubPlans = targetSub.plans
         .filter(isValidPlan)
     if(targetSubPlans.some(plan => plan.id === newPlan.id)) {
         return null
