@@ -82,7 +82,7 @@ function previewPlanCharge(customer, request) {
     if(targetPlan === undefined) {
         return null
     }
-    if(!targetPlan.isActive) {
+    if(targetPlan.isActive !== true) {
         return null
     }
     if(!Number.isFinite(targetPlan.price) || targetPlan.price < 0) {
@@ -92,7 +92,7 @@ function previewPlanCharge(customer, request) {
     if(normalizedCredit > targetPlan.price) {
         return null
     }
-    const customerName = customer?.profile.displayName ?? 'Unknown'
+    const customerName = customer.profile?.displayName ?? 'Unknown'
     const finalPrice = targetPlan.price - normalizedCredit
     
     return {
