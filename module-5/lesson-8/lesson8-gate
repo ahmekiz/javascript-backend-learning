@@ -1,0 +1,36 @@
+const customer = {
+    id: 50,
+    subscriptions: [
+        {
+            id: 301,
+            status: "active",
+            plans: [
+                {
+                    id: 1,
+                    name: "Starter",
+                    price: 250,
+                    isActive: true
+                },
+                null,
+                {
+                    id: 2,
+                    name: "Pro",
+                    price: 750,
+                    isActive: true
+                },
+                {
+                    id: 3,
+                    name: "Legacy",
+                    price: 400,
+                    isActive: false
+                }
+            ]
+        }
+    ]
+};
+
+const request = {
+    subscriptionId: 301,
+    serviceFee: 50,
+    credit: 200
+};
