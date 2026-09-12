@@ -51,7 +51,7 @@ function previewPlanCharge(customer, request) {
     if(targetSub === undefined) {
         return null
     }
-    if(targetSub.isActive !== true) {
+    if(targetSub.status !== 'active') {
         return null
     }
     if(!Array.isArray(targetSub.plans)) {
