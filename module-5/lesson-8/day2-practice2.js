@@ -30,7 +30,7 @@ const request = {
     discount: 100
 };
 
-function previewPlanCharge(customer, request) {
+function previewSubscriptionRenewal(customer, request) {
     if(request === null || typeof request !== 'object' || Array.isArray(request)) {
         return null
     }
