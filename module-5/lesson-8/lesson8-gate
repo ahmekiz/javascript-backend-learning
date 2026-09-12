@@ -67,7 +67,7 @@ function previewAccountCharge(customer, request) {
         return null
     }
     const trustedPlans = targetSub.plans
-        .filter(plan => plan !== null && typeof plan === 'object' || !Array.isArray(plan))
+        .filter(plan => plan !== null && typeof plan === 'object' && !Array.isArray(plan))
         .filter(plan => plan.isActive === true)
         .filter(plan => Number.isFinite(plan.price) && plan.price >= 0)
     if(trustedPlans.length === 0) {
