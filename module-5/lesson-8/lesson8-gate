@@ -34,3 +34,59 @@ const request = {
     serviceFee: 50,
     credit: 200
 };
+
+function previewAccountCharge(customer, request) {
+    if(request === null || typeof request !== 'object' || Array.isArray(request)) {
+        return null
+    }
+    if(!Number.isInteger(request.subscriptionId) || request.subscriptionId <= 0) {
+        return null
+    }
+    const normalizedServiceFee = request.serviceFee ?? 0
+    if(!Number.isFinite(normalizedServiceFee) || normalizedServiceFee < 0) {
+        return null
+    }
+    const normalizedCredit = request.credit ?? 0
+    if(!Number.isFinite(normalizedCredit) || normalizedCredit < 0) {
+        return null
+    }
+    if(customer === null || typeof customer !== 'object' || Array.isArray(customer)) {
+        return null
+    }
+    if(!Array.isArray(customer.subscriptions)) {
+        return null
+    }
+    const targetSub = customer.subscriptions.find(sub => sub?.id === request.subscriptionId)
+    if(targetSub === undefined) {
+        return null
+    }
+    if(targetSub.status !== 'active') {
+        return null
+    }
+    if(!Array.isArray(targetSub.plans)) {
+        return null
+    }
+    const trustedPlans = targetSub.plans
+        .filter(plan => plan !== null && typeof plan === 'object' || !Array.isArray(plan))
+        .filter(plan => plan.isActive === true)
+        .filter(plan => Number.isFinite(plan.price) && plan.price >= 0)
+    if(trustedPlans.length === 0) {
+        return null
+    }
+    const plansSubtotal = trustedPlans.reduce((acc,plan) => acc + plan.price,0)
+    const grossTotal = plansSubtotal + normalizedServiceFee
+    if(normalizedCredit > grossTotal) {
+        return null
+    }
+    const finalTotal = grossTotal - normalizedCredit
+
+    return {
+        subscriptionId: targetSub.id,
+        activePlanCount: trustedPlans.length,
+        plansSubtotal: plansSubtotal,
+        serviceFee: normalizedServiceFee,
+        grossTotal: grossTotal,
+        appliedCredit: normalizedCredit,
+        finalTotal: finalTotal
+    }
+}
