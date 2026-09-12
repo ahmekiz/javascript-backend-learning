@@ -68,7 +68,7 @@ function previewPlanCharge(customer, request) {
     if(!Array.isArray(customer.subscriptions)) {
         return null
     }
-    const targetSub = customer.subscriptions.find(sub => sub.id === request.subscriptionId)
+    const targetSub = customer.subscriptions.find(sub => sub?.id === request.subscriptionId)
     if(targetSub === undefined) {
         return null
     }
@@ -78,7 +78,7 @@ function previewPlanCharge(customer, request) {
     if(!Array.isArray(targetSub.plans)) {
         return null
     }
-    const targetPlan =targetSub.plans.find(plan => plan.id === request.planId)
+    const targetPlan =targetSub.plans.find(plan => plan?.id === request.planId)
     if(targetPlan === undefined) {
         return null
     }
