@@ -20,9 +20,12 @@ const seenSubscriptionIds = new Set();
 
 for (const request of requests) {
 
-    // 1. subscription mevcut mu?
+    if(!subscriptionById.has(request.subscriptionId)) {
+        return null
+    }
 
-    // 2. duplicate request mi?
-
-    // 3. değilse seen Set'e ekle
+    if(seenSubscriptionIds.has(request.subscriptionId)) {
+        return null
+    }
+    seenSubscriptionIds.add(request.subscriptionId)
 }
