@@ -5,3 +5,13 @@ const requests = [
     { planId: 30 },
     { planId: 40 }
 ];
+
+const allowedPlanIdSet = new Set(allowedPlanIds);
+
+const hasInvalidPlan = requests.some(request => {
+    return !allowedPlanIdSet.has(request.planId)
+});
+
+if (hasInvalidPlan) {
+    return null;
+}
