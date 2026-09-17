@@ -10,6 +10,14 @@ const requests = [
     { subscriptionId: 101 }
 ];
 
+const subscriptionById = new Map();
+
+for (const subscription of subscriptions) {
+    subscriptionById.set(subscription.id, subscription);
+}
+
+const seenSubscriptionIds = new Set();
+
 for (const request of requests) {
 
     // 1. subscription mevcut mu?
