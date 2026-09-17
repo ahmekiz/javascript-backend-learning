@@ -16,3 +16,22 @@ for (const subscription of subscriptions) {
 }
 
 const seenSubscriptionIds = new Set();
+
+for(const request of requests) {
+    if(!subscriptionById.has(request.subscriptionId)) {
+        return null
+    }
+    if(seenSubscriptionIds.has(request.subscriptionId)) {
+        return null
+    }
+    seenSubscriptionIds.add(request.subscriptionId)
+}
+
+const result = requests.map(request => {
+    const subscription = subscriptionById.get(request.subscriptionId)
+
+    return {
+        subscriptionId: subscription.id,
+        status: subscription.status
+    }
+})
