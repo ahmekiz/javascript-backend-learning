@@ -20,3 +20,46 @@ const requests = [
     { id: 5, customerId: 30, planId: 999 },
     { id: 6, customerId: 30, planId: 101 }
 ];
+
+const customerById = new Map();
+for(const customer of customers) {
+    customerById.set(customer.id,customer)
+}
+const planById = new Map();
+for(const plan of plans) {
+    planById.set(plan.id,plan)
+}
+
+const customerIdSet = new Set();
+const result = {
+    accepted: [],
+    rejected: []
+}
+for(const req of requests) {
+    if(!customerById.has(req.customerId)) {
+        result.rejected.push(req)
+        continue
+    }
+    if(!planById.has(req.planId)) {
+        result.rejected.push(req)
+        continue
+    }
+    if(customerIdSet.has(req.customerId)) {
+        result.rejected.push(req)
+        continue
+    }
+    const plan = planById.get(req.planId)
+    const customer = customerById.get(req.customerId)
+    if(customer.credit < plan.price) {
+        result.rejected.push(req)
+        continue
+    }
+    customerIdSet.add(req.customerId)
+    result.accepted.push({
+        request: req,
+        customer,
+        plan
+    })
+}
+
+//req yazmakla request: req yazmak inanılmaz farklı!
