@@ -52,7 +52,7 @@ for(const req of requests) {
     const course = courseById.get(req.courseId)
     const batchAcceptedCount = acceptedCount.get(req.courseId)
     const student = studentById.get(req.studentId)
-    if(course.enrolledCount + batchAcceptedCount > course.capacity) {
+    if(course.enrolledCount + batchAcceptedCount >= course.capacity) {
         result.rejected.push(req)
         continue
     }
