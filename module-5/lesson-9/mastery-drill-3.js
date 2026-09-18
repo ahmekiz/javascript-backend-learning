@@ -19,3 +19,50 @@ const requests = [
     { id: 106, studentId: 3, courseId: 20 },
     { id: 107, studentId: 4, courseId: 20 }
 ];
+
+const studentById = new Map()
+for(const student of students) {
+    studentById.set(student.id,student)
+}
+const courseById = new Map()
+for(const course of courses) {
+    courseById.set(course.id, course)
+}
+const acceptedCount = new Map()
+for(const course of courses) {
+    acceptedCount.set(course.id, course.enrolledCount)
+}
+
+const studentIdSet = new Set()
+const result = {
+    accepted: [],
+    rejected: []
+}
+for(const req of requests) {
+    if(!studentById.has(req.studentId)) {
+        result.rejected.push(req)
+        continue
+    }
+    if(!courseById.has(req.courseId)) {
+        result.rejected.push(req)
+        continue
+    }
+    if(studentIdSet.has(req.studentId)) {
+        result.rejected.push(req)
+        continue
+    }
+    const projectedState = 1 + acceptedCount.get(req.courseId)
+    const course = courseById.get(req.courseId)
+    const student = studentById.get(req.studentId)
+    if(projectedState > course.capacity) {
+        result.rejected.push(req)
+        continue
+    }
+    acceptedCount.set(req.courseId, projectedState)
+    studentIdSet.add(req.studentId)
+    result.accepted.push({
+        request: req,
+        student,
+        course
+    })
+}
