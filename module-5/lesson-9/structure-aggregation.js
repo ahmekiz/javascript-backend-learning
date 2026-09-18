@@ -6,3 +6,18 @@ const orders = [
   { id: 5, customerId: 30, total: 300 }
 ];
 
+const ordersByCustomerId = new Map()
+
+for(const order of orders) {
+    if(!ordersByCustomerId.has(order.customerId)) {
+        ordersByCustomerId.set(order.customerId, {
+            orders: [],
+            orderCount: 0,
+            totalSpent: 0
+        })
+    }
+    const summaryOrder = ordersByCustomerId.get(order.customerId)
+    summaryOrder.orders.push(order)
+    summaryOrder.orderCount += 1
+    summaryOrder.totalSpent += order.total
+}
