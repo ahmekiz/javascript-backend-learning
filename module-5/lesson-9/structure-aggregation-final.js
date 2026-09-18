@@ -7,3 +7,17 @@ const telemetry = [
 ];
 
 const telemetryByDeviceId = new Map();
+
+for(const reading of telemetry) {
+    if(!telemetryByDeviceId.has(reading.deviceId)) {
+        telemetryByDeviceId.set(reading.deviceId, {
+            readings: [],
+            readingCount: 0,
+            temperatureTotal: 0
+        })
+    }
+    const summary = telemetryByDeviceId.get(reading.deviceId)
+    summary.readings.push(reading)
+    summary.readingCount += 1
+    summary.temperatureTotal += reading.temperature
+}
