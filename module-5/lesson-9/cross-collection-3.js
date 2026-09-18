@@ -35,7 +35,7 @@ const result = {
     rejected: []
 }
 for(const request of requests) {
-    if(!customerById.has(request.customerId)) {
+    if(!customerById.has(request.customerId) || customerById.get(request.customerId) === undefined) {
         result.rejected.push(request)
         continue
     }
@@ -44,14 +44,16 @@ for(const request of requests) {
         continue
     }
     customerIdSet.add(request.customerId)
-    if(!planById.has(request.planId)) {
+    if(!planById.has(request.planId) || planById.get(request.planId) === undefined) {
         result.rejected.push(request)
+        continue
     }
     if(planIdSet.has(request.planId)) {
         result.rejected.push(request)
         continue
     }
     planIdSet.add(request.planId)
+
     const plan = planById.get(request.planId)
     const customer = customerById.get(request.customerId)
     result.accepted.push({request, plan, customer})
