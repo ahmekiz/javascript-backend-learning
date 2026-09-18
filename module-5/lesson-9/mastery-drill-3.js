@@ -25,12 +25,10 @@ for(const student of students) {
     studentById.set(student.id,student)
 }
 const courseById = new Map()
-for(const course of courses) {
-    courseById.set(course.id, course)
-}
 const acceptedCount = new Map()
 for(const course of courses) {
-    acceptedCount.set(course.id, course.enrolledCount)
+    courseById.set(course.id, course)
+    acceptedCount.set(course.id, 0)
 }
 
 const studentIdSet = new Set()
@@ -51,14 +49,14 @@ for(const req of requests) {
         result.rejected.push(req)
         continue
     }
-    const projectedState = 1 + acceptedCount.get(req.courseId)
     const course = courseById.get(req.courseId)
+    const batchAcceptedCount = acceptedCount.get(req.courseId)
     const student = studentById.get(req.studentId)
-    if(projectedState > course.capacity) {
+    if(course.enrolledCount + batchAcceptedCount > course.capacity) {
         result.rejected.push(req)
         continue
     }
-    acceptedCount.set(req.courseId, projectedState)
+    acceptedCount.set(req.courseId, (batchAcceptedCount + 1))
     studentIdSet.add(req.studentId)
     result.accepted.push({
         request: req,
