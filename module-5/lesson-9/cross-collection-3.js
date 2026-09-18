@@ -18,3 +18,41 @@ const requests = [
     { id: 5, customerId: 30, planId: 999 },
     { id: 6, customerId: 30, planId: 303 }
 ];
+
+const customerById = new Map()
+for(const customer of customers) {
+    customerById.set(customer.id, customer)
+}
+const planById = new Map()
+for(const plan of plans) {
+    planById.set(plan.id, plan)
+}
+
+const planIdSet = new Set();
+const customerIdSet = new Set();
+const result = {
+    accepted: [],
+    rejected: []
+}
+for(const request of requests) {
+    if(!customerById.has(request.customerId)) {
+        result.rejected.push(request)
+        continue
+    }
+    if(customerIdSet.has(request.customerId)) {
+        result.rejected.push(request)
+        continue
+    }
+    customerIdSet.add(request.customerId)
+    if(!planById.has(request.planId)) {
+        result.rejected.push(request)
+    }
+    if(planIdSet.has(request.planId)) {
+        result.rejected.push(request)
+        continue
+    }
+    planIdSet.add(request.planId)
+    const plan = planById.get(request.planId)
+    const customer = customerById.get(request.customerId)
+    result.accepted.push({request, plan, customer})
+}
