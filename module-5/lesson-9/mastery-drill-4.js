@@ -19,3 +19,49 @@ const requests = [
     { id: 6, customerId: 30, productId: 200, quantity: 3 },
     { id: 7, customerId: 40, productId: 200, quantity: 2 }
 ];
+
+const customerById = new Map()
+for(const customer of customers) {
+    customerById.set(customer.id, customer)
+}
+const productById = new Map()
+const acceptProduct = new Map()
+for(const product of products) {
+    productById.set(product.id, product)
+    acceptProduct.set(product.id, 0)
+}
+
+const customerIdSet = new Set()
+const results = {
+    accepted: [],
+    rejected: []
+}
+for(const req of requests) {
+    if(!customerById.has(req.customerId)) {
+        results.rejected.push(req)
+        continue
+    }
+    if(!productById.has(req.productId)) {
+        results.rejected.push(req)
+        continue
+    }
+    if(customerIdSet.has(req.customerId)) {
+        results.rejected.push(req)
+        continue
+    }
+    const customer = customerById.get(req.customerId)
+    const product = productById.get(req.productId)
+    const currentReserved = acceptProduct.get(req.productId)
+    const projectedState = req.quantity + currentReserved
+    if(projectedState > product.stock) {
+        results.rejected.push(req)
+        continue
+    }
+    customerIdSet.add(req.customerId)
+    acceptProduct.set(req.productId, projectedState)
+    results.accepted.push({
+        request: req,
+        customer,
+        product
+    })
+}
