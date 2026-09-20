@@ -1,5 +1,3 @@
-const { request } = require("express");
-
 const products = [
     { id: 1, name: 'Keyboard', stock: 8 },
     { id: 2, name: 'Mouse', stock: 5 },
