@@ -91,4 +91,30 @@ function previewAssignments(developers, projects, requests, batchState) {
       return null
      }
     }
+    const result = {
+     accepted: [],
+     rejected: [],
+     developerSummaries: [],
+     projectSummaries: [],
+     totalAcceptedAssignments: 0,
+     totalAcceptedHours: 0
+    }
+    for(const req of requests) {
+     if(req === null || typeof req !== 'object' || Array.isArray(req)) {
+      result.rejected.push(req)
+     }
+     if(!Number.isInteger(req.assignmentId) || req.assignmentId <= 0) {
+      result.rejected.push(req)
+     }
+     if(!Number.isInteger(req.developerId) || req.developerId <= 0) {
+      result.rejected.push(req)
+     }
+     if(!Number.isInteger(req.projectId) || req.projectId <= 0) {
+      result.rejected.push(req)
+     }
+     if(!Number.isInteger(req.hours) || req.hours < 0) {
+      result.rejected.push(req)
+     }
+     
+    }
 }
