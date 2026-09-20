@@ -24,7 +24,7 @@ function previewStockAllocation(products, requests) {
         if(!Number.isInteger(product.id) || product.id <= 0) {
             return null
         }
-        if(!Number.isInterger(product.stock) || product.stock < 0) {
+        if(!Number.isInteger(product.stock) || product.stock < 0) {
             return null
         }
     }
@@ -33,7 +33,7 @@ function previewStockAllocation(products, requests) {
     const reservedQuantity = new Map()
     for(const product of products) {
         productById.set(product.id,product)
-        reservedSoFar.set(product.id, 0)
+        reservedQuantity.set(product.id, 0)
     }
     const seenOrderIds = new Set();
     const result = {
@@ -47,7 +47,7 @@ function previewStockAllocation(products, requests) {
         if(!Number.isInteger(req.orderId) || req.orderId <= 0) {
             result.rejected.push(req)
         }
-        if(!Number.isInterger(req.productId) || req.productId <= 0) {
+        if(!Number.isInteger(req.productId) || req.productId <= 0) {
             result.rejected.push(req)
         }
         if(!Number.isInteger(req.quantity) || req.quantity <= 0) {
@@ -63,7 +63,7 @@ function previewStockAllocation(products, requests) {
         const reservedSoFar = reservedQuantity.get(req.productId)
         const projectedReserved = reservedSoFar + req.quantity
         if(projectedReserved < product.stock) {
-            return null
+            result.rejected.push(req)
         }
         seenOrderIds.add(req.orderId)
         reservedQuantity.set(req.productId, projectedReserved)
