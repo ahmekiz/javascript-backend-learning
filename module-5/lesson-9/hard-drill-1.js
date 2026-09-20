@@ -31,3 +31,64 @@ const batchState = {
         [20, 1]
     ])
 };
+
+function previewAssignments(developers, projects, requests, batchState) {
+    if(!Array.isArray(developers)) {
+     return null
+    }
+    if(!Array.isArray(projects)) {
+     return null
+    }
+    if(!Array.isArray(requests)) {
+     return null
+    }
+    if(batchState === null || typeof batchState !== 'object' || Array.isArray(batchState)) {
+     return null
+    }
+    if(!(batchState.seenAssignmentIds instanceof Set)) {
+     return null
+    }
+    if(!(batchState.addedHoursByDeveloper instanceof Map) || !(batchState.addedHoursByProject instanceof Map)) {
+     return null
+    }
+    for(const developer of developers) {
+     if(developer === null || typeof developer !== 'object' || Array.isArray(developer)) {
+      return null
+     }
+     if(!Number.isInteger(developer.id) || developer.id <= 0) {
+      return null
+     }
+     if(!Number.isInteger(developer.currentHours) || developer.currentHours < 0) {
+      return null
+     }
+     if(!Number.isInteger(developer.maxHours) || developer.maxHours < 0) {
+      return null
+     }
+     if(typeof developer.name !== 'string') {
+      return null
+     }
+     if(developer.currentHours > developer.maxHours) {
+      return null
+     }
+    }
+    for(const project of developers) {
+     if(project === null || typeof project !== 'object' || Array.isArray(project)) {
+      return null
+     }
+     if(!Number.isInteger(project.id) || project.id <= 0) {
+      return null
+     }
+     if(!Number.isInteger(project.usedHours) || project.usedHours < 0) {
+      return null
+     }
+     if(!Number.isInteger(project.budgetHours) || project.budgetHours < 0) {
+      return null
+     }
+     if(typeof project.name !== 'string') {
+      return null
+     }
+     if(project.usedHours > project.budgetHours) {
+      return null
+     }
+    }
+}
