@@ -26,10 +26,10 @@ function previewStockAllocation(products, requests) {
         if(!Number.isInteger(product.id) || product.id <= 0) {
             return null
         }
-        if(!Number.isInteger(product.stock) || product.stock <= 0) {
+        if(!Number.isInteger(product.stock) || product.stock < 0) {
             return null
         }
-        if(typeof product.name !== 'string' || product.name.trim() === 0) {
+        if(typeof product.name !== 'string') {
             return null
         }
     }
@@ -40,6 +40,10 @@ function previewStockAllocation(products, requests) {
         reservedByProduct.set(product.id, 0)
     }
     const seenOrderIds = new Set()
+    const result = {
+        allocations: [],
+        totalReservedUnits: 0
+    }
     for(const req of requests) {
         if(req === null || typeof req !== 'object' || Array.isArray(req)) {
             return null
@@ -47,7 +51,7 @@ function previewStockAllocation(products, requests) {
         if(!Number.isInteger(req.orderId) || req.orderId <= 0) {
             return null
         }
-        if(!Number.isInteger(req.productId || req.productId <= 0)) {
+        if(!Number.isInteger(req.productId) || req.productId <= 0) {
             return null
         }
         if(!Number.isInteger(req.quantity) || req.quantity <= 0) {
@@ -67,16 +71,13 @@ function previewStockAllocation(products, requests) {
         }
         seenOrderIds.add(req.orderId)
         reservedByProduct.set(req.productId, projectedReserved)
-        const allocations = []
-        allocations.push({
+        result.allocations.push({
             productId: req.productId,
             productName: product.name,
             reservedQuantity: reservedByProduct.get(req.productId),
             remainingStock: product.stock - projectedReserved
         })
-        const totalReservedUnits = allocations.reduce((acc, product) => acc + product.reservedQuantity,0)
-        return {
-            allocations,
-            totalReservedUnits
-        }
+        result.totalReservedUnits += projectedReserved
     }
+    return result
+}
