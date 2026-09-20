@@ -71,13 +71,18 @@ function previewStockAllocation(products, requests) {
         }
         seenOrderIds.add(req.orderId)
         reservedByProduct.set(req.productId, projectedReserved)
+    }
+    for(const product of products) {
+        if(reservedByProduct.get(product.id) <= 0) {
+            continue
+        }
         result.allocations.push({
-            productId: req.productId,
+            productId: product.id,
             productName: product.name,
-            reservedQuantity: reservedByProduct.get(req.productId),
-            remainingStock: product.stock - projectedReserved
+            reservedQuantity: reservedByProduct.get(product.id),
+            remainingStock: product.stock - reservedByProduct.get(product.id)
         })
-        result.totalReservedUnits += projectedReserved
+        result.totalReservedUnits += reservedByProduct.get(product.id)
     }
     return result
 }
