@@ -32,6 +32,9 @@ function previewCourseEnrollments(courses, requests) {
         if(!Number.isInteger(course.enrolled) || course.enrolled < 0) {
             return null
         }
+        if(typeof course.title !== 'string') {
+            return null
+        }
         if(course.enrolled > course.capacity) {
             return null
         }
@@ -47,10 +50,10 @@ function previewCourseEnrollments(courses, requests) {
         accepted: [],
         rejected: [],
         courseSummaries: [],
-        totalAccept: 0
+        totalAccepted: 0
     }
     for(const req of requests) {
-        if(req === undefined || typeof req !== 'object' || Array.isArray(req)) {
+        if(req === null || typeof req !== 'object' || Array.isArray(req)) {
             result.rejected.push(req)
             continue
         }
@@ -71,23 +74,31 @@ function previewCourseEnrollments(courses, requests) {
             continue
         }
         const course = courseById.get(req.courseId)
-        const projectedCourse = enrolledCourse.get(req.courseId)
-        const projectedState = projectedCourse + course.enrolled
-        console.log(projectedState);
-        if(projectedState > course.capacity) {
+        const addedSoFar = enrolledCourse.get(req.courseId)
+        const projectedEnrolled = addedSoFar + course.enrolled + 1
+        const projectedState = course.capacity - projectedEnrolled
+        if(projectedState < 0) {
             result.rejected.push(req)
             continue
         }
         seenStudentId.add(req.studentId)
-        enrolledCourse.set(req.courseId, projectedState)
+        enrolledCourse.set(req.courseId, addedSoFar + 1)
         result.accepted.push(req)
     }
     for(const course of courses) {
         if(enrolledCourse.get(course.id) <= 0) {
             continue
         }
-        result.courseSummaries.push(course)
-        result.totalAccept += enrolledCourse.get(course.id)
+        const addedEnrollments = enrolledCourse.get(course.id)
+        const projectedEnrolled = course.enrolled + addedEnrollments
+        result.courseSummaries.push({
+            courseId: course.id,
+            courseTitle: course.title,
+            addedEnrollments: addedEnrollments,
+            projectedEnrolled: projectedEnrolled,
+            remainingCapacity: course.capacity - projectedEnrolled
+        })
+        result.totalAccepted += addedEnrollments
     }
     return result
 }
