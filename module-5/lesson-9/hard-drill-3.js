@@ -164,6 +164,21 @@ function previewPurchases(customers, products, requests, batchState) {
       result.rejected.push(req)
       continue
      }
+     const customer = customerById.get(req.customerId)
+     const product = productById.get(req.productId)
+     const batchCustomerSpend = workingAddedSpendByCustomer.get(req.customerId)
+     const batchProductQuantity = workingReservedQuantityByProduct.get(req.productId)
+     const requestCostCents = req.quantity * product.unitPriceCents
+     const projectedCustomerSpend = requestCostCents + customer.currentSpendCents + batchCustomerSpend
+     const projectedReservedQuantity = req.quantity + batchProductQuantity
+     if(projectedCustomerSpend > customer.maxSpendCents) {
+      result.rejected.push(req)
+      continue
+     }
+     if(projectedReservedQuantity > product.stock) {
+      result.rejected.push(req)
+      continue
+     }
      
     }
 }
