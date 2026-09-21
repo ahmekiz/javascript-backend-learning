@@ -65,3 +65,48 @@ const batchState = {
         [30, 0]
     ])
 };
+
+function previewPurchases(customers, products, requests, batchState) {
+    if(!Array.isArray(customers) || !Array.isArray(products) || Array.isArray(requests)) {
+     return null
+    }
+    if(batchState === null || typeof batchState !== 'object' || Array.isArray(batchState)) {
+     return null
+    }
+    if(!(batchState.seenPurchaseIds instanceof Set)) {
+     return null
+    }
+    if(!(batchState.addedSpendByCustomer instanceof Map) || !(batchState.reservedQuantityByProduct instanceof Map)) {
+     return null
+    }
+    const customerById = new Map()
+    const productById = new Map()
+    const newSpendCentsByCustomer = new Map()
+    const newReservedByProduct = new Map()
+    const workingSeenPurchaseIds = new Map()
+    const workingAddedSpendByCustomer = new Map()
+    const workingReservedQuantityByProduct = new Map()
+    for(const customer of customers) {
+     if(customer === null || typeof customer !== 'object' ||Array.isArray(customer)) {
+      return null
+     }
+     if(!Number.isInteger(customer.id) || customer.id <= 0) {
+      return null
+     }
+     if(!Number.isInteger(customer.currentSpendCents) || customer.currentSpendCents < 0) {
+      return null
+     }
+     if(!Number.isInteger(customer.maxSpendCents) || customer.maxSpendCents < 0) {
+      return null
+     }
+     if(typeof customer.name !== 'string') {
+      return null
+     }
+     if(customer.currentSpendCents > customer.maxSpendCents) {
+      return null
+     }
+     customerById.set(customer.id, customer)
+     newSpendCentsByCustomer.set(customer.id, 0)
+    }
+    
+}
