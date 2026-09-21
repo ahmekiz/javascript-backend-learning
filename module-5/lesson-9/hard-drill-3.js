@@ -67,7 +67,7 @@ const batchState = {
 };
 
 function previewPurchases(customers, products, requests, batchState) {
-    if(!Array.isArray(customers) || !Array.isArray(products) || Array.isArray(requests)) {
+    if(!Array.isArray(customers) || !Array.isArray(products) || !Array.isArray(requests)) {
      return null
     }
     if(batchState === null || typeof batchState !== 'object' || Array.isArray(batchState)) {
@@ -83,7 +83,7 @@ function previewPurchases(customers, products, requests, batchState) {
     const productById = new Map()
     const newSpendCentsByCustomer = new Map()
     const newReservedByProduct = new Map()
-    const workingSeenPurchaseIds = new Map(batchState.seenPurchaseIds)
+    const workingSeenPurchaseIds = new Set(batchState.seenPurchaseIds)
     const workingAddedSpendByCustomer = new Map(batchState.addedSpendByCustomer)
     const workingReservedQuantityByProduct = new Map(batchState.reservedQuantityByProduct)
     const result = {
@@ -127,7 +127,7 @@ function previewPurchases(customers, products, requests, batchState) {
      if(!Number.isInteger(product.stock) || product.stock < 0) {
       return null
      }
-     if(!Number.isInteger(product.unitPriceCents) || unitPriceCents < 0) {
+     if(!Number.isInteger(product.unitPriceCents) || product.unitPriceCents < 0) {
       return null
      }
      if(typeof product.name !== 'string') {
@@ -221,7 +221,7 @@ function previewPurchases(customers, products, requests, batchState) {
       productName: product.name,
       reservedQuantity: newQuantity,
       projectedReservedQuantity: projectedQuantity,
-      remainingStock: product.stock - projectedReservedQuantity
+      remainingStock: product.stock - projectedQuantity
      })
     }
     return result
