@@ -152,5 +152,18 @@ function previewPurchases(customers, products, requests, batchState) {
       result.rejected.push(req)
       continue
      }
+     if(!customerById.has(req.customerId)) {
+      result.rejected.push(req)
+      continue
+     }
+     if(!productById.has(req.productId)) {
+      result.rejected.push(req)
+      continue
+     }
+     if(workingSeenPurchaseIds.has(req.purchaseId)) {
+      result.rejected.push(req)
+      continue
+     }
+     
     }
 }
