@@ -42,7 +42,7 @@ function previewAssignments(developers, projects, requests, batchState) {
    if(!Array.isArray(requests)) {
     return null
    }
-   if(batchState === undefined || typeof batchState !== 'object' || Array.isArray(batchState)) {
+   if(batchState === null || typeof batchState !== 'object' || Array.isArray(batchState)) {
     return null
    }
    if(!(batchState.seenAssignmentIds instanceof Set)) {
@@ -86,6 +86,9 @@ function previewAssignments(developers, projects, requests, batchState) {
     if(typeof developer.name !== 'string') {
      return null
     }
+    if(developer.currentHours > developer.maxHours) {
+     return null
+    }
     developerById.set(developer.id, developer)
     newHoursByDeveloper.set(developer.id, 0)
    }
@@ -106,6 +109,9 @@ function previewAssignments(developers, projects, requests, batchState) {
     if(!Number.isInteger(project.budgetHours) || project.budgetHours < 0) {
      return null
     }
+    if(project.usedHours > project.budgetHours) {
+     return null
+    }
     projectById.set(project.id, project)
     newHoursByProject.set(project.id, 0)
    }
@@ -122,7 +128,7 @@ function previewAssignments(developers, projects, requests, batchState) {
      result.rejected.push(req)
      continue
     }
-    if(!Number.isInteger(req.projectId) || req.projectedId <= 0) {
+    if(!Number.isInteger(req.projectId) || req.projectId <= 0) {
      result.rejected.push(req)
      continue
     }
@@ -138,14 +144,14 @@ function previewAssignments(developers, projects, requests, batchState) {
      result.rejected.push(req)
      continue
     }
-    if(workingSeenAssignmentIds.has(req.developerId)) {
+    if(workingSeenAssignmentIds.has(req.assignmentId)) {
      result.rejected.push(req)
      continue
     }
     const developer = developerById.get(req.developerId)
     const project = projectById.get(req.projectId)
-    const batchHoursDeveloper = workingAddedHoursByDeveloper.get(req.developerId)
-    const batchHoursProject = workingAddedHoursByProject.get(req.projectId)
+    const batchHoursDeveloper = workingAddedHoursByDeveloper.get(req.developerId) ?? 0
+    const batchHoursProject = workingAddedHoursByProject.get(req.projectId) ?? 0
     const projectedHoursDeveloper = batchHoursDeveloper + developer.currentHours + req.hours
     const projectedHoursProject = batchHoursProject + project.usedHours + req.hours
     if(projectedHoursDeveloper > developer.maxHours) {
@@ -156,11 +162,13 @@ function previewAssignments(developers, projects, requests, batchState) {
      result.rejected.push(req)
      continue
     }
-    workingSeenAssignmentIds.add(req.developerId)
+    const newDeveloperHoursSoFar = newHoursByDeveloper.get(req.developerId)
+    const newProjectHoursSoFar = newHoursByProject.get(req.projectId)
+    workingSeenAssignmentIds.add(req.assignmentId)
     workingAddedHoursByDeveloper.set(req.developerId, batchHoursDeveloper + req.hours)
     workingAddedHoursByProject.set(req.projectId, batchHoursProject + req.hours)
-    newHoursByDeveloper.set(req.developerId, req.hours)
-    newHoursByProject.set(req.projectId, req.hours)
+    newHoursByDeveloper.set(req.developerId, newDeveloperHoursSoFar + req.hours)
+    newHoursByProject.set(req.projectId, newProjectHoursSoFar + req.hours)
     result.accepted.push(req)
     result.totalAcceptedAssignments += 1
     result.totalAcceptedHours += req.hours
