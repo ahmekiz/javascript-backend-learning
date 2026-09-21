@@ -51,6 +51,7 @@ function previewAssignments(developers, projects, requests, batchState) {
     if(!(batchState.addedHoursByDeveloper instanceof Map) || !(batchState.addedHoursByProject instanceof Map)) {
      return null
     }
+    const developerById = new Map()
     for(const developer of developers) {
      if(developer === null || typeof developer !== 'object' || Array.isArray(developer)) {
       return null
@@ -70,7 +71,9 @@ function previewAssignments(developers, projects, requests, batchState) {
      if(developer.currentHours > developer.maxHours) {
       return null
      }
+     developerById.set(developer.id, developer)
     }
+    const projectById = new Map()
     for(const project of developers) {
      if(project === null || typeof project !== 'object' || Array.isArray(project)) {
       return null
@@ -90,6 +93,7 @@ function previewAssignments(developers, projects, requests, batchState) {
      if(project.usedHours > project.budgetHours) {
       return null
      }
+     projectById.set(project.id, project)
     }
     const result = {
      accepted: [],
@@ -102,19 +106,53 @@ function previewAssignments(developers, projects, requests, batchState) {
     for(const req of requests) {
      if(req === null || typeof req !== 'object' || Array.isArray(req)) {
       result.rejected.push(req)
+      continue
      }
      if(!Number.isInteger(req.assignmentId) || req.assignmentId <= 0) {
       result.rejected.push(req)
+      continue
      }
      if(!Number.isInteger(req.developerId) || req.developerId <= 0) {
       result.rejected.push(req)
+      continue
      }
      if(!Number.isInteger(req.projectId) || req.projectId <= 0) {
       result.rejected.push(req)
+      continue
      }
      if(!Number.isInteger(req.hours) || req.hours < 0) {
       result.rejected.push(req)
+      continue
      }
-     
+     if(!batchState.addedHoursByDeveloper.get(req.developerId)) {
+      result.rejected.push(req)
+      continue
+     }
+     if(!batchState.addedHoursByProject.get(req.projectId)) {
+      result.rejected.push(req)
+      continue
+     }
+     if(batchState.seenAssignmentIds.has(req.assignmentId)) {
+      result.rejected.push(req)
+      continue
+     }
+     const developer = developerById.get(req.developerId)
+     const project = projectById.get(req.projectId)
+     const batchDeveloperHours = batchState.addedHoursByDeveloper.get(developer.id)
+     const batchProjectHours = batchState.addedHoursByProject.get(project.id)
+     const projectedDeveloperHours = batchDeveloperHours + req.hours + developer.currentHours
+     const projectedProjectHours = batchProjectHours + req.hours + project.usedHours
+     if(projectedDeveloperHours > developer.maxHours) {
+      result.rejected.push(req)
+      continue
+     }
+     if(projectedProjectHours > project.budgetHours) {
+      result.rejected.push(req)
+      continue
+     }
+     batchState.seenAssignmentIds.add(req.assignmentId)
+     batchState.addedHoursByDeveloper.set(req.developerId, batchDeveloperHours + req.hours)
+     batchState.addedHoursByProject.set(req.projectId, batchProjectHours + req.hours)
+     result.accepted.push(req)
     }
 }
