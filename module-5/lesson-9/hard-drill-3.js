@@ -179,6 +179,13 @@ function previewPurchases(customers, products, requests, batchState) {
       result.rejected.push(req)
       continue
      }
-     
+     const newProductSoFar = newReservedByProduct.get(req.productId)
+     const newCustomerSoFar = newSpendCentsByCustomer.get(req.customerId)
+     workingSeenPurchaseIds.add(req.purchaseId)
+     workingAddedSpendByCustomer.set(req.customerId, requestCostCents + batchCustomerSpend)
+     workingReservedQuantityByProduct.set(req.productId, projectedReservedQuantity)
+     newReservedByProduct.set(req.productId, newProductSoFar + req.quantity)
+     newSpendCentsByCustomer.set(req.customerId, requestCostCents + newCustomerSoFar)
+     result.accepted.push(req)
     }
 }
