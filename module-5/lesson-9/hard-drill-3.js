@@ -83,9 +83,13 @@ function previewPurchases(customers, products, requests, batchState) {
     const productById = new Map()
     const newSpendCentsByCustomer = new Map()
     const newReservedByProduct = new Map()
-    const workingSeenPurchaseIds = new Map()
-    const workingAddedSpendByCustomer = new Map()
-    const workingReservedQuantityByProduct = new Map()
+    const workingSeenPurchaseIds = new Map(batchState.seenPurchaseIds)
+    const workingAddedSpendByCustomer = new Map(batchState.addedSpendByCustomer)
+    const workingReservedQuantityByProduct = new Map(batchState.reservedQuantityByProduct)
+    const result = {
+     accepted: [],
+     rejected: []
+    }
     for(const customer of customers) {
      if(customer === null || typeof customer !== 'object' ||Array.isArray(customer)) {
       return null
@@ -126,5 +130,27 @@ function previewPurchases(customers, products, requests, batchState) {
      }
      productById.set(product.id, product)
      newReservedByProduct.set(product.id, 0)
+    }
+    for(const req of requests) {
+     if(req === null || typeof req !== 'object' || Array.isArray(req)) {
+      result.rejected.push(req)
+      continue
+     }
+     if(!Number.isInteger(req.purchaseId) || req.purchaseId <= 0) {
+      result.rejected.push(req)
+      continue
+     }
+     if(!Number.isInteger(req.customerId) || req.customerId <= 0) {
+      result.rejected.push(req)
+      continue
+     }
+     if(!Number.isInteger(req.productId) || req.productId <= 0) {
+      result.rejected.push(req)
+      continue
+     }
+     if(!Number.isInteger(req.quantity) || req.quantity < 0) {
+      result.rejected.push(req)
+      continue
+     }
     }
 }
