@@ -88,7 +88,12 @@ function previewPurchases(customers, products, requests, batchState) {
     const workingReservedQuantityByProduct = new Map(batchState.reservedQuantityByProduct)
     const result = {
      accepted: [],
-     rejected: []
+     rejected: [],
+     customerSummaries: [],
+     productSummaries: [],
+     totalAcceptedPurchases: 0,
+     totalAcceptedUnits: 0,
+     totalAcceptedSpendCents: 0
     }
     for(const customer of customers) {
      if(customer === null || typeof customer !== 'object' ||Array.isArray(customer)) {
@@ -166,8 +171,8 @@ function previewPurchases(customers, products, requests, batchState) {
      }
      const customer = customerById.get(req.customerId)
      const product = productById.get(req.productId)
-     const batchCustomerSpend = workingAddedSpendByCustomer.get(req.customerId)
-     const batchProductQuantity = workingReservedQuantityByProduct.get(req.productId)
+     const batchCustomerSpend = workingAddedSpendByCustomer.get(req.customerId) ?? 0
+     const batchProductQuantity = workingReservedQuantityByProduct.get(req.productId) ?? 0
      const requestCostCents = req.quantity * product.unitPriceCents
      const projectedCustomerSpend = requestCostCents + customer.currentSpendCents + batchCustomerSpend
      const projectedReservedQuantity = req.quantity + batchProductQuantity
@@ -187,5 +192,37 @@ function previewPurchases(customers, products, requests, batchState) {
      newReservedByProduct.set(req.productId, newProductSoFar + req.quantity)
      newSpendCentsByCustomer.set(req.customerId, requestCostCents + newCustomerSoFar)
      result.accepted.push(req)
+     result.totalAcceptedPurchases += requestCostCents
+     result.totalAcceptedUnits += 1
+     result.totalAcceptedSpendCents += projectedCustomerSpend
     }
+    for(const customer of customers) {
+     if(newSpendCentsByCustomer.get(customer.id) <= 0) {
+      continue
+     }
+     const newSpendCents = newSpendCentsByCustomer.get(customer.id)
+     const projectedSpend = customer.currentSpendCents + (workingAddedSpendByCustomer.get(customer.id) ?? 0)
+     result.customerSummaries.push({
+      customerId: customer.id,
+      customerName: customer.name,
+      addedSpendCents: newSpendCents,
+      projectedSpendCents: projectedSpend,
+      remainingSpendCents: customer.maxSpendCents - projectedSpend
+     })
+    }
+    for(const product of products) {
+     if(newReservedByProduct.get(product.id) <= 0) {
+      continue
+     }
+     const newQuantity = newReservedByProduct.get(product.id)
+     const projectedQuantity = workingReservedQuantityByProduct.get(product.id) ?? 0
+     result.productSummaries.push({
+      productId: product.id,
+      productName: product.name,
+      reservedQuantity: newQuantity,
+      projectedReservedQuantity: projectedQuantity,
+      remainingStock: product.stock - projectedReservedQuantity
+     })
+    }
+    return result
 }
