@@ -52,6 +52,7 @@ function previewAssignments(developers, projects, requests, batchState) {
      return null
     }
     const developerById = new Map()
+    const projectedHoursByDeveloperId = new Map()
     for(const developer of developers) {
      if(developer === null || typeof developer !== 'object' || Array.isArray(developer)) {
       return null
@@ -72,9 +73,11 @@ function previewAssignments(developers, projects, requests, batchState) {
       return null
      }
      developerById.set(developer.id, developer)
+     projectedHoursByDeveloperId.set(developer.id, 0)
     }
     const projectById = new Map()
-    for(const project of developers) {
+    const projectedHoursByProjectId = new Map()
+    for(const project of projects) {
      if(project === null || typeof project !== 'object' || Array.isArray(project)) {
       return null
      }
@@ -94,6 +97,7 @@ function previewAssignments(developers, projects, requests, batchState) {
       return null
      }
      projectById.set(project.id, project)
+     projectedHoursByProjectId.set(project.id, 0)
     }
     const result = {
      accepted: [],
@@ -153,6 +157,37 @@ function previewAssignments(developers, projects, requests, batchState) {
      batchState.seenAssignmentIds.add(req.assignmentId)
      batchState.addedHoursByDeveloper.set(req.developerId, batchDeveloperHours + req.hours)
      batchState.addedHoursByProject.set(req.projectId, batchProjectHours + req.hours)
+     projectedHoursByDeveloperId.set(req.developerId, req.hours)
+     projectedHoursByProjectId.set(req.projectId, req.hours)
      result.accepted.push(req)
+     result.totalAcceptedAssignments += 1
+     result.totalAcceptedHours += req.hours
     }
+    for(const developer of developers) {
+     if(projectedHoursByDeveloperId.get(developer.id) <= 0) {
+      continue
+     }
+     const projectedHours = batchState.addedHoursByDeveloper.get(developer.id) + developer.currentHours
+     result.developerSummaries.push({
+      developerId: developer.id,
+      developerName: developer.name,
+      addedHours: projectedHoursByDeveloperId.get(developer.id),
+      projectedHours: projectedHours,
+      remainingHours: developer.maxHours - projectedHours
+     })
+    }
+    for(const project of projects) {
+     if(projectedHoursByProjectId.get(project.id) <= 0) {
+      continue
+     }
+     const projectedUsedHours = batchState.addedHoursByProject.get(project.id)
+     result.projectSummaries.push({
+      projectId: project.id,
+      projectName: project.name,
+      addedHours: projectedHoursByProjectId.get(project.id),
+      projectedUsedHours: projectedUsedHours,
+      remainingBudgetHours: project.budgetHours - projectedUsedHours
+     })
+    }
+    return result
 }
