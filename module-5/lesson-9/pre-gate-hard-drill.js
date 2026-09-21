@@ -72,3 +72,19 @@ const batchState = {
         [20, 1]
     ])
 };
+
+function previewComputeJobs(accounts, nodes, requests, batchState) {
+    if(!Array.isArray(accounts) || !Array.isArray(nodes) || !Array.isArray(requests)) {
+     return null
+    }
+    if(batchState === null || typeof batchState !== 'object' || Array.isArray(batchState)) {
+     return null
+    }
+    if(!(batchState.seenJobIds instanceof Set)) {
+     return null
+    }
+    if(!(batchState.addedSpendByAccount instanceof Map) || !(batchState.addedJobsByAccount instanceof Map) || !(batchState.reservedComputeByNode instanceof Map)) {
+     return null
+    }
+
+}
