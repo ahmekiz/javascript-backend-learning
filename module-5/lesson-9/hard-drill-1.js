@@ -128,11 +128,11 @@ function previewAssignments(developers, projects, requests, batchState) {
       result.rejected.push(req)
       continue
      }
-     if(!batchState.addedHoursByDeveloper.get(req.developerId)) {
+     if(!developerById.get(req.developerId)) {
       result.rejected.push(req)
       continue
      }
-     if(!batchState.addedHoursByProject.get(req.projectId)) {
+     if(!projectById.get(req.projectId)) {
       result.rejected.push(req)
       continue
      }
@@ -180,7 +180,7 @@ function previewAssignments(developers, projects, requests, batchState) {
      if(projectedHoursByProjectId.get(project.id) <= 0) {
       continue
      }
-     const projectedUsedHours = batchState.addedHoursByProject.get(project.id)
+     const projectedUsedHours = batchState.addedHoursByProject.get(project.id) + project.usedHours
      result.projectSummaries.push({
       projectId: project.id,
       projectName: project.name,
