@@ -197,8 +197,8 @@ function previewAssignments(developers, projects, requests, batchState) {
      projectId: project.id,
      projectName: project.name,
      addedHours: hoursProject,
-     projectedHours: projectedHours,
-     remainingHours: project.budgetHours - projectedHours
+     projectedUsedHours: projectedHours,
+     remainingBudgetHours: project.budgetHours - projectedHours
     })
    }
    return result
