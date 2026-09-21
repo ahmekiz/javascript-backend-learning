@@ -153,7 +153,7 @@ function previewPurchases(customers, products, requests, batchState) {
       result.rejected.push(req)
       continue
      }
-     if(!Number.isInteger(req.quantity) || req.quantity < 0) {
+     if(!Number.isInteger(req.quantity) || req.quantity <= 0) {
       result.rejected.push(req)
       continue
      }
