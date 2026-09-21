@@ -108,5 +108,23 @@ function previewPurchases(customers, products, requests, batchState) {
      customerById.set(customer.id, customer)
      newSpendCentsByCustomer.set(customer.id, 0)
     }
-    
+    for(const product of products) {
+     if(product === null || typeof product !== 'object' || Array.isArray(product)) {
+      return null
+     }
+     if(!Number.isInteger(product.id) || product.id <= 0) {
+      return null
+     }
+     if(!Number.isInteger(product.stock) || product.stock < 0) {
+      return null
+     }
+     if(!Number.isInteger(product.unitPriceCents) || unitPriceCents < 0) {
+      return null
+     }
+     if(typeof product.name !== 'string') {
+      return null
+     }
+     productById.set(product.id, product)
+     newReservedByProduct.set(product.id, 0)
+    }
 }
