@@ -127,7 +127,7 @@ function previewPurchases(customers, products, requests, batchState) {
      if(!Number.isInteger(product.stock) || product.stock < 0) {
       return null
      }
-     if(!Number.isInteger(product.unitPriceCents) || product.unitPriceCents < 0) {
+     if(!Number.isInteger(product.unitPriceCents) || product.unitPriceCents <= 0) {
       return null
      }
      if(typeof product.name !== 'string') {
@@ -192,9 +192,9 @@ function previewPurchases(customers, products, requests, batchState) {
      newReservedByProduct.set(req.productId, newProductSoFar + req.quantity)
      newSpendCentsByCustomer.set(req.customerId, requestCostCents + newCustomerSoFar)
      result.accepted.push(req)
-     result.totalAcceptedPurchases += requestCostCents
-     result.totalAcceptedUnits += 1
-     result.totalAcceptedSpendCents += projectedCustomerSpend
+     result.totalAcceptedPurchases += 1
+     result.totalAcceptedUnits += req.quantity
+     result.totalAcceptedSpendCents += requestCostCents
     }
     for(const customer of customers) {
      if(newSpendCentsByCustomer.get(customer.id) <= 0) {
