@@ -39,7 +39,7 @@ function previewAssignments(developers, projects, requests, batchState) {
    if(!Array.isArray(projects)) {
     return null
    }
-   if(Array.isArray(requests)) {
+   if(!Array.isArray(requests)) {
     return null
    }
    if(batchState === undefined || typeof batchState !== 'object' || Array.isArray(batchState)) {
@@ -134,6 +134,10 @@ function previewAssignments(developers, projects, requests, batchState) {
      result.rejected.push(req)
      continue
     }
+    if(!projectById.has(req.projectId)) {
+     result.rejected.push(req)
+     continue
+    }
     if(workingSeenAssignmentIds.has(req.developerId)) {
      result.rejected.push(req)
      continue
@@ -158,6 +162,36 @@ function previewAssignments(developers, projects, requests, batchState) {
     newHoursByDeveloper.set(req.developerId, req.hours)
     newHoursByProject.set(req.projectId, req.hours)
     result.accepted.push(req)
+    result.totalAcceptedAssignments += 1
+    result.totalAcceptedHours += req.hours
    }
+   for(const developer of developers) {
+    if(newHoursByDeveloper.get(developer.id) <= 0) {
+     continue
+    }
+    const hoursDeveloper = newHoursByDeveloper.get(developer.id)
+    const projectedHours = developer.currentHours + workingAddedHoursByDeveloper.get(developer.id)
+    result.developerSummaries.push({
+     developerId: developer.id,
+     developerName: developer.name,
+     addedHours: hoursDeveloper,
+     projectedHours: projectedHours,
+     remainingHours: developer.maxHours - projectedHours
+    })
+   }
+   for(const project of projects) {
+    if(newHoursByProject.get(project.id) <= 0) {
+     continue
+    }
+    const hoursProject = newHoursByProject.get(project.id)
+    const projectedHours = project.usedHours + workingAddedHoursByProject.get(project.id)
+    result.projectSummaries.push({
+     projectId: project.id,
+     projectName: project.name,
+     addedHours: hoursProject,
+     projectedHours: projectedHours,
+     remainingHours: project.budgetHours - projectedHours
+    })
+   }
+   return result
 }
-
