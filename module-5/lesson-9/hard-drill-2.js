@@ -32,10 +32,13 @@ const request = {
 };
 
 const workingSeenAssignmentIds =
-    new Set(batchState.seenAssignmentIds);
+    new Set(batchState.seenAssignmentIds)
 
 const workingAddedHoursByDeveloper =
-    new Map(batchState.addedHoursByDeveloper);
+    new Map(batchState.addedHoursByDeveloper)
 
 const workingAddedHoursByProject =
-    new Map(batchState.addedHoursByProject);
+    new Map(batchState.addedHoursByProject)
+
+const newHoursByDeveloper = new Map()
+const newHoursByProject = new Map()
