@@ -235,4 +235,27 @@ function previewComputeJobs(accounts, nodes, requests, batchState) {
      results.totalAcceptedJobs += 1
      results.totalAcceptedSpendCents += requestCostCents
     }
+    for(const account of accounts) {
+     if(newSpendCostAccount.get(account.id) <= 0) {
+      continue
+     }
+     if(newActiveJobAccount.get(account.id) <= 0) {
+      continue
+     }
+     const newSpendAccount = newSpendCostAccount.get(account.id)
+     const projectedCost = workingAddedSpendByAccount.get(account.id) + account.currentSpendCents
+     const newJobAccount = newActiveJobAccount.get(account.id)
+     const projectedJob = workingAddedJobsByAccount.get(account.id) + account.activeJobs
+     results.accountSummaries.push({
+      accountId: account.id,
+      accountName: account.name,
+      addedSpendCents: newSpendAccount,
+      projectedSpendCents: projectedCost,
+      remainingSpendCents: account.maxSpendCents - projectedCost,
+      addedJobs: newJobAccount,
+      projectedJobs: projectedJob,
+      remainingJobSlots: account.maxJobs - projectedJob
+     })
+    }
+    
 }
