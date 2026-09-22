@@ -200,9 +200,9 @@ function previewComputeJobs(accounts, nodes, requests, batchState) {
      }
      const account = accountById.get(req.accountId)
      const node = nodeById.get(req.nodeId)
-     const batchSpendAccount = workingAddedSpendByAccount.get(req.accountId)
-     const batchJobAccount = workingAddedJobsByAccount.get(req.accountId)
-     const batchReservedNode = workingReservedComputeByNode.get(req.nodeId)
+     const batchSpendAccount = workingAddedSpendByAccount.get(req.accountId) ?? 0
+     const batchJobAccount = workingAddedJobsByAccount.get(req.accountId) ?? 0
+     const batchReservedNode = workingReservedComputeByNode.get(req.nodeId) ?? 0
      const requestComputeUnits = req.units * req.durationHours
      const requestCostCents = requestComputeUnits * node.unitPriceCents
      const projectedCostCentsAccount = requestCostCents + batchSpendAccount + account.currentSpendCents
