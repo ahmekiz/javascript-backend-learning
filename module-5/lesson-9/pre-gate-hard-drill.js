@@ -95,6 +95,10 @@ function previewComputeJobs(accounts, nodes, requests, batchState) {
     const newSpendCostAccount = new Map()
     const newActiveJobAccount = new Map()
     const newReservedUnitNode = new Map()
+    const results = {
+     accepted: [],
+     rejected: []
+    }
     for(const account of accounts) {
      if(account === null || typeof account !== 'object' || Array.isArray(account)) {
       return null
@@ -152,5 +156,42 @@ function previewComputeJobs(accounts, nodes, requests, batchState) {
      nodeById.set(node.id, node)
      newReservedUnitNode.set(node.id, 0)
     }
-    
+    for(const req of requests) {
+     if(req === null || typeof req !== 'object' || Array.isArray(req)) {
+      results.rejected.push(req)
+      continue
+     }
+     if(!Number.isInteger(req.jobId) || req.jobId <= 0) {
+      results.rejected.push(req)
+      continue
+     }
+     if(!Number.isInteger(req.accountId) || req.accountId <= 0) {
+      results.rejected.push(req)
+      continue
+     }
+     if(!Number.isInteger(req.nodeId) || req.nodeId <= 0) {
+      results.rejected.push(req)
+      continue
+     }
+     if(!Number.isInteger(req.units) || req.units <= 0) {
+      results.rejected.push(req)
+      continue
+     }
+     if(!Number.isInteger(req.durationHours) || req.durationHours <= 0) {
+      results.rejected.push(req)
+      continue
+     }
+     if(!accountById.has(req.accountId)) {
+      results.rejected.push(req)
+      continue
+     }
+     if(!nodeById.has(req.nodeId)) {
+      results.rejected.push(req)
+      continue
+     }
+     if(workingSeenJobIds.has(req.jobId)) {
+      results.rejected.push(req)
+      continue
+     }
+    }
 }
