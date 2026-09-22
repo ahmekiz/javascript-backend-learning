@@ -97,7 +97,12 @@ function previewComputeJobs(accounts, nodes, requests, batchState) {
     const newReservedUnitNode = new Map()
     const results = {
      accepted: [],
-     rejected: []
+     rejected: [],
+     accountSummaries: [],
+     nodeSummaries: [],
+     totalAcceptedJobs: 0,
+     totalAcceptedComputeUnits: 0,
+     totalAcceptedSpendCents: 0
     }
     for(const account of accounts) {
      if(account === null || typeof account !== 'object' || Array.isArray(account)) {
@@ -193,5 +198,41 @@ function previewComputeJobs(accounts, nodes, requests, batchState) {
       results.rejected.push(req)
       continue
      }
+     const account = accountById.get(req.accountId)
+     const node = nodeById.get(req.nodeId)
+     const batchSpendAccount = workingAddedSpendByAccount.get(req.accountId)
+     const batchJobAccount = workingAddedJobsByAccount.get(req.accountId)
+     const batchReservedNode = workingReservedComputeByNode.get(req.nodeId)
+     const requestComputeUnits = req.units * req.durationHours
+     const requestCostCents = requestComputeUnits * node.unitPriceCents
+     const projectedCostCentsAccount = requestCostCents + batchSpendAccount + account.currentSpendCents
+     const projectedJobCountAccount = account.activeJobs + batchJobAccount + 1
+     const projectedComputeNode = batchReservedNode + node.usedComputeUnits + requestComputeUnits
+     if(projectedCostCentsAccount > account.maxSpendCents) {
+      results.rejected.push(req)
+      continue
+     }
+     if(projectedJobCountAccount > account.maxJobs) {
+      results.rejected.push(req)
+      continue
+     }
+     if(projectedComputeNode > node.capacityUnits) {
+      results.rejected.push(req)
+      continue
+     }
+     const newJobSoFar = newActiveJobAccount.get(req.accountId)
+     const newSpendSoFar = newSpendCostAccount.get(req.accountId)
+     const newReservedSoFar = newReservedUnitNode.get(req.nodeId)
+     workingSeenJobIds.add(req.jobId)
+     workingAddedSpendByAccount.set(req.accountId, requestCostCents + batchSpendAccount)
+     workingAddedJobsByAccount.set(req.accountId, batchJobAccount + 1)
+     workingReservedComputeByNode.set(req.nodeId, batchReservedNode + requestComputeUnits)
+     newActiveJobAccount.set(req.accountId, newJobSoFar + 1)
+     newSpendCostAccount.set(req.accountId, requestCostCents + newSpendSoFar)
+     newReservedUnitNode.set(req.nodeId, newReservedSoFar + requestComputeUnits)
+     results.accepted.push(req)
+     results.totalAcceptedComputeUnits += requestComputeUnits
+     results.totalAcceptedJobs += 1
+     results.totalAcceptedSpendCents += requestCostCents
     }
 }
