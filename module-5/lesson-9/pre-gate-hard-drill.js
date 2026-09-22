@@ -127,5 +127,30 @@ function previewComputeJobs(accounts, nodes, requests, batchState) {
      newSpendCostAccount.set(account.id, 0)
      newActiveJobAccount.set(account.id, 0)
     }
+    for(const node of nodes) {
+     if(node === null || typeof node !== 'object' || Array.isArray(node)) {
+      return null
+     }
+     if(!Number.isInteger(node.id) || node.id <= 0) {
+      return null
+     }
+     if(typeof node.name !== 'string') {
+      return null
+     }
+     if(!Number.isInteger(node.usedComputeUnits) || node.usedComputeUnits < 0) {
+      return null
+     }
+     if(!Number.isInteger(node.capacityUnits) || node.capacityUnits < 0) {
+      return null
+     }
+     if(!Number.isInteger(node.unitPriceCents) || node.unitPriceCents <= 0) {
+      return null
+     }
+     if(node.usedComputeUnits > node.capacityUnits) {
+      return null
+     }
+     nodeById.set(node.id, node)
+     newReservedUnitNode.set(node.id, 0)
+    }
     
 }
