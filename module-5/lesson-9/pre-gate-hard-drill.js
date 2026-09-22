@@ -86,5 +86,46 @@ function previewComputeJobs(accounts, nodes, requests, batchState) {
     if(!(batchState.addedSpendByAccount instanceof Map) || !(batchState.addedJobsByAccount instanceof Map) || !(batchState.reservedComputeByNode instanceof Map)) {
      return null
     }
-
+    const workingSeenJobIds = new Set(batchState.seenJobIds)
+    const workingAddedSpendByAccount = new Map(batchState.addedSpendByAccount)
+    const workingAddedJobsByAccount = new Map(batchState.addedJobsByAccount)
+    const workingReservedComputeByNode = new Map(batchState.reservedComputeByNode)
+    const accountById = new Map()
+    const nodeById = new Map()
+    const newSpendCostAccount = new Map()
+    const newActiveJobAccount = new Map()
+    const newReservedUnitNode = new Map()
+    for(const account of accounts) {
+     if(account === null || typeof account !== 'object' || Array.isArray(account)) {
+      return null
+     }
+     if(!Number.isInteger(account.id) || account.id <= 0) {
+      return null
+     }
+     if(!Number.isInteger(account.currentSpendCents) || account.currentSpendCents < 0) {
+      return null
+     } 
+     if(!Number.isInteger(account.maxSpendCents) || account.maxSpendCents < 0) {
+      return null
+     }
+     if(!Number.isInteger(account.activeJobs) || account.activeJobs < 0) {
+      return null
+     }
+     if(!Number.isInteger(account.maxJobs) || account.maxJobs < 0) {
+      return null
+     }
+     if(typeof account.name !== 'string') {
+      return null
+     }
+     if(account.currentSpendCents > account.maxSpendCents) {
+      return null
+     }
+     if(account.activeJobs > account.maxJobs) {
+      return null
+     }
+     accountById.set(account.id, account)
+     newSpendCostAccount.set(account.id, 0)
+     newActiveJobAccount.set(account.id, 0)
+    }
+    
 }
