@@ -257,5 +257,19 @@ function previewComputeJobs(accounts, nodes, requests, batchState) {
       remainingJobSlots: account.maxJobs - projectedJob
      })
     }
-    
+    for(const node of nodes) {
+     if(newReservedUnitNode.get(node.id) <= 0) {
+      continue
+     }
+     const newReserved = newReservedUnitNode.get(node.id)
+     const projectedCompute = workingReservedComputeByNode.get(node.id) + node.usedComputeUnits
+     results.nodeSummaries.push({
+      nodeId: node.id,
+      nodeName: node.name,
+      reservedComputeUnits: newReserved,
+      projectedComputeUnits: projectedCompute,
+      remainingComputeUnits: node.capacityUnits - projectedCompute
+     })
+    }
+    return results
 }
