@@ -56,3 +56,7 @@ const requests = [
         amount: 100
     }
 ];
+
+function processTransferBatch(accounts, batchState, requests) {
+
+}
