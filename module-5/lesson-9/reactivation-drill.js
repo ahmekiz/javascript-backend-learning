@@ -37,6 +37,16 @@ function previewWarehouseTransfers(warehouses, requests, batchState) {
    if(batchState === null || typeof batchState !== 'object' || Array.isArray(batchState)) {
     return null
    }
+   if(!(batchState.seenTransferIds instanceof Set)) {
+    return null
+   }
+   if(!(batchState.incomingByWarehouse instanceof Map)) {
+    return null
+   }
+   if(!(batchState.outgoingByWarehouse instanceof Map)) {
+    return null
+   }
+   const seenTransferIds = new Set(batchState.seenTransferIds)
    const warehousesById = new Map()
    const incomingWarehouse = new Map()
    const outgoingWarehouse = new Map()
@@ -60,5 +70,75 @@ function previewWarehouseTransfers(warehouses, requests, batchState) {
     incomingWarehouse.set(wrh.id, 0)
     outgoingWarehouse.set(wrh.id, 0)
    }
-   
+   const requestById = new Map()
+   const results = {
+    accepted: [],
+    rejected: [],
+    warehouses: []
+   }
+   for(const req of requests) {
+    if(req === null || typeof req !== 'object' || Array.isArray(req)) {
+     results.rejected.push({
+      transferId: req.transferId,
+      reason: 'validation unsuccesfull'
+     })
+     continue
+    }
+    if(!Number.isInteger(req.transferId) || req.transferId <= 0) {
+     results.rejected.push({
+      transferId: req.transferId,
+      reason: 'transferId unusable'
+     })
+     continue
+    }
+    if(!Number.isInteger(req.fromWarehouseId) || req.fromWarehouseId <= 0) {
+     results.rejected.push({
+      transferId: req.transferId,
+      reason: 'fromWareHouseId unusable'
+     })
+     continue
+    }
+    if(!Number.isInteger(req.toWarehouseId) || req.toWarehouseId <= 0) {
+     results.rejected.push({
+      transferId: req.transferId,
+      reason: 'toWarehouseId unusable'
+     })
+     continue
+    }
+    if(!Number.isFinite(req.amount) <= 0) {
+     results.rejected.push({
+      transferId: req.transferId,
+      reason: 'amount unusable'
+     })
+     continue
+    }
+    if(req.fromWarehouseId === req.toWarehouseId) {
+     results.rejected.push({
+      transferId: req.transferId,
+      reason: 'fromWarehouseId and toWarehouseId are cannot the same'
+     })
+     continue
+    }
+    if(!warehousesById.has(req.fromWarehouseId)) {
+     results.rejected.push({
+      transferId: req.transferId,
+      reason: 'warehouse unavailable'
+     })
+     continue
+    }
+    if(!warehousesById.has(req.toWarehouseId)) {
+     results.rejected.push({
+      transferId: req.transferId,
+      reason: 'warehouse unavailable'
+     })
+     continue
+    }
+    if(seenTransferIds.has(req.transferId)) {
+     results.rejected.push({
+      transferId: req.transferId,
+      reason: 'transferId unavailable'
+     })
+     continue
+    }
+   }
 }
