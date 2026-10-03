@@ -26,3 +26,39 @@ const batchState = {
     [3, 0]
   ])
 };
+
+function previewWarehouseTransfers(warehouses, requests, batchState) {
+   if(!Array.isArray(warehouses)) {
+    return null
+   }
+   if(!Array.isArray(requests)) {
+    return null
+   }
+   if(batchState === null || typeof batchState !== 'object' || Array.isArray(batchState)) {
+    return null
+   }
+   const warehousesById = new Map()
+   const incomingWarehouse = new Map()
+   const outgoingWarehouse = new Map()
+   for(const wrh of warehousesById) {
+    if(wrh === null || typeof wrh !== 'object' || Array.isArray(wrh)) {
+     return null
+    }
+    if(!Number.isInteger(wrh.id) || wrh.id <= 0) {
+     return null
+    }
+    if(!Number.isInteger(wrh.currentStock) || wrh.currentStock < 0) {
+     return null
+    }
+    if(!Number.isInteger(wrh.minStock) || wrh.minStock < 0) {
+     return null
+    }
+    if(typeof wrh.name !== 'string') {
+     return null
+    }
+    warehousesById.set(wrh.id, wrh)
+    incomingWarehouse.set(wrh.id, 0)
+    outgoingWarehouse.set(wrh.id, 0)
+   }
+   
+}
