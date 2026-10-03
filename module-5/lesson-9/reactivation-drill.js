@@ -47,6 +47,8 @@ function previewWarehouseTransfers(warehouses, requests, batchState) {
     return null
    }
    const seenTransferIds = new Set(batchState.seenTransferIds)
+   const batchIncoming = new Map(batchState.incomingByWarehouse)
+   const batchOutgoing = new Map(batchState.outgoingByWarehouse)
    const warehousesById = new Map()
    const incomingWarehouse = new Map()
    const outgoingWarehouse = new Map()
@@ -137,6 +139,26 @@ function previewWarehouseTransfers(warehouses, requests, batchState) {
      results.rejected.push({
       transferId: req.transferId,
       reason: 'transferId unavailable'
+     })
+     continue
+    }
+    const fromWarehouse = warehousesById.get(req.fromWarehouseId)
+    const toWarehouse = warehousesById.get(req.toWarehouseId)
+    const batchIncomingWarehouse = batchIncoming.get(toWarehouse.id) ?? 0
+    const batchOutgoungWarehouse = batchOutgoing.get(fromWarehouse.id) ?? 0
+    const warehouseIncoming = batchIncomingWarehouse + toWarehouse.currentStock + incomingWarehouse.get(toWarehouse.id)
+    const warehouseOutgoing = fromWarehouse.currentStock - (batchOutgoungWarehouse + outgoingWarehouse.get(fromWarehouse.id))
+    if(warehouseIncoming < toWarehouse.minStock) {
+     results.rejected.push({
+      transferId: req.transferId,
+      reason: 'business rule not work'
+     })
+     continue
+    }
+    if(warehouseOutgoing < fromWarehouse.minStock) {
+     results.rejected.push({
+      transferId: req.transferId,
+      reason: 'business rule not work'
      })
      continue
     }
